@@ -4,18 +4,80 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Settings {
+  id                String   @id @default("global")
+  adminPhoneNumber  String   @default("+237696022056")
+  updatedAt         DateTime @updatedAt
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  date        DateTime
+  status      String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, COMPLETED
+  client      User     @relation("ClientBookings", fields: [clientId], references: [id])
+  clientId    String
+  expert      User     @relation("ExpertBookings", fields: [expertId], references: [id])
+  expertId    String
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model User {
   id            String    @id @default(cuid())
+  role          String    @default("CLIENT")
+  isValidated   Boolean   @default(false)
+  canUploadCV   Boolean   @default(false)
   name          String?
   email         String?   @unique
   phoneNumber   String?   @unique
   image         String?
+  cvUrl         String?   // Store CV link for potential employees
+  password      String?
+  failedLoginAttempts Int  @default(0)
   accounts      Account[]
   sessions      Session[]
+  assignedLeads Lead[]    @relation("EmployeeLeads")
+  clientLeads   Lead[]    @relation("ClientLeads")
+  bookingsAsClient Booking[] @relation("ClientBookings")
+  bookingsAsExpert Booking[] @relation("ExpertBookings")
+  referrals     Referral[] @relation("UserReferrals")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+model Lead {
+  id          String     @id @default(cuid())
+  status      String     @default("NEW")
+  client      User       @relation("ClientLeads", fields: [clientId], references: [id])
+  clientId    String
+  assignedTo  User?      @relation("EmployeeLeads", fields: [employeeId], references: [id])
+  employeeId  String?
+  notes       String?
+  operationalNotes String?  // Visible by Employee and Admin
+  strategicSynthesis String? // STRICTLY visible by Super Admin only
+  value       Float?
+  followUpLevel Int      @default(0)
+  lastContactAt DateTime?
+  referral    Referral?  @relation("LeadReferral", fields: [referralId], references: [id])
+  referralId  String?    @unique
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Referral {
+  id            String   @id @default(cuid())
+  referrerId    String
+  referrer      User     @relation("UserReferrals", fields: [referrerId], references: [id])
+  referredEmail  String
+  referredName   String?
+  status        String   @default("PENDING") // PENDING, CONVERTED, EXPIRED
+  lead          Lead?    @relation("LeadReferral")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Account {
@@ -36,7 +98,6 @@ model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
-  expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -46,4 +107,12 @@ model VerificationOTP {
   code        String
   expiresAt   DateTime
   createdAt   DateTime @default(now())
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
