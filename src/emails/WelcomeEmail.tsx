@@ -42,7 +42,7 @@ export const WelcomeEmail = ({ name, email }: WelcomeEmailProps) => (
 
             <div className="text-center mb-8">
               <Button
-                href="http://localhost:3000/client"
+                href={`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/client`}
                 className="bg-[#ee0c5d] text-white px-8 py-3 rounded-full font-bold no-underline"
               >
                 Accéder à mon espace

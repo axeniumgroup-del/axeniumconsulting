@@ -12,8 +12,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Email et mot de passe requis" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: email },
+          { phoneNumber: email },
+        ],
+      },
     });
 
     if (!user) {

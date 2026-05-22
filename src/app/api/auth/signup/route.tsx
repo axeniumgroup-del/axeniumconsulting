@@ -7,11 +7,12 @@ import { logger } from "@/lib/logger";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    console.log('Signup request body:', body);
     const { prenom, email, phone, password } = body;
 
-    if (!prenom || !email || !phone || !password) {
+    if (!prenom || !password || (!email && !phone)) {
       return NextResponse.json(
-        { message: "Veuillez remplir tous les champs, y compris le mot de passe" },
+        { message: "Veuillez remplir tous les champs obligatoires, y compris le mot de passe" },
         { status: 400 }
       );
     }

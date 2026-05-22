@@ -44,7 +44,7 @@ export const AdminNotificationEmail = ({ userName, userEmail, userPhone }: Admin
             <div className="text-center mb-8">
               <p className="text-xs text-slate-400 mb-4">Vous pouvez gérer ce client depuis le tableau de bord administrateur.</p>
               <a
-                href="http://localhost:3000/admin/users"
+                href={`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/admin/users`}
                 style={{
                   backgroundColor: '#231f20',
                   color: 'white',

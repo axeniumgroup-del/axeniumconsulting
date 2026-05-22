@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Lock, Mail, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { Toast } from "@/components/ui/toast";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -28,26 +30,21 @@ export default function LoginPage() {
     setToastMessage(null);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Identifiants incorrects");
-      }
-
-      // If successful, sign in via next-auth
-      await signIn("credentials", {
+      const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
-        callbackUrl: "/client",
+        redirect: false,
       });
+
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+
+      // Successful login, redirect to client dashboard
+      router.push("/client");
+      router.refresh();
     } catch (err: any) {
-      setToastMessage(err.message);
+      setToastMessage(err.message || "Une erreur est survenue lors de la connexion");
     } finally {
       setIsLoading(false);
     }
@@ -69,11 +66,11 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 ml-1">Email</label>
+              <label className="text-sm font-medium text-slate-700 ml-1">Email ou Téléphone</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <input
-                  type="email"
+                  type="text"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
