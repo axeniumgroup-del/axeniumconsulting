@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client'
 import { execSync } from 'child_process'
 import path from 'path'
 
-// Use the test database URL from environment
 const prisma = new PrismaClient()
 
 export async function resetAndSeedDB() {
@@ -18,7 +17,6 @@ export async function resetAndSeedDB() {
       stdio: 'inherit',
       env
     })
-
 
     execSync('npx tsx prisma/seed.ts', {
       stdio: 'inherit',

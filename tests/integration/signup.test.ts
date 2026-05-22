@@ -24,6 +24,7 @@ describe('Signup API Integration', () => {
       prenom: 'Jean Dupont',
       email: 'jean@example.com',
       phone: '+237600000000',
+      password: 'password123',
     };
 
     const req = new NextRequest('http://localhost:3000/api/auth/signup', {
@@ -50,6 +51,7 @@ describe('Signup API Integration', () => {
       prenom: 'Jean Duplicate',
       email: 'jean@example.com',
       phone: '+237111111111',
+      password: 'password123',
     };
 
     const req = new NextRequest('http://localhost:3000/api/auth/signup', {
