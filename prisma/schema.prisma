@@ -3,51 +3,175 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-model Settings {
-  id                String   @id @default("global")
-  adminPhoneNumber  String   @default("+237696022056")
-  updatedAt         DateTime @updatedAt
-}
-
-model Booking {
-  id          String   @id @default(cuid())
-  date        DateTime
-  status      String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, COMPLETED
-  client      User     @relation("ClientBookings", fields: [clientId], references: [id])
-  clientId    String
-  expert      User     @relation("ExpertBookings", fields: [expertId], references: [id])
-  expertId    String
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
 
 model User {
   id            String    @id @default(cuid())
   role          String    @default("CLIENT")
-  isValidated   Boolean   @default(false)
-  canUploadCV   Boolean   @default(false)
   name          String?
-  email         String?   @unique
-  phoneNumber   String?   @unique
+  email         String?    @unique
+  phoneNumber   String?    @unique
   image         String?
-  cvUrl         String?   // Store CV link for potential employees
   password      String?
-  failedLoginAttempts Int  @default(0)
+  isValidated    Boolean   @default(false)
+  loyaltyTier   String    @default("BRONZE") // BRONZE, SILVER, GOLD
+
+  // Relations
   accounts      Account[]
   sessions      Session[]
-  assignedLeads Lead[]    @relation("EmployeeLeads")
-  clientLeads   Lead[]    @relation("ClientLeads")
-  bookingsAsClient Booking[] @relation("ClientBookings")
-  bookingsAsExpert Booking[] @relation("ExpertBookings")
-  referrals     Referral[] @relation("UserReferrals")
   notifications Notification[]
+  tickets       Ticket[]
+  conversations ConversationParticipant[]
+  messages      Message[]
+
+  // Profile relations
+  consultantProfile ConsultantProfile?
+  clientProfile     ClientProfile?
+
+  // Marketplace relations
+  needsCreated      Need[]       @relation("ClientNeeds")
+  matchesAppliedTo  Match[]
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  location    String
+  price       Float    @default(0)
+  image       String?
+  tickets     Ticket[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Ticket {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purchaseDate DateTime @default(now())
+  qrCode      String   @unique
+  status      String   @default("VALID") // VALID, USED, CANCELLED
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  type      String   @default("CLIENT_CONSULTANT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content        String
+  createdAt      DateTime     @default(now())
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  matchId     String   @unique
+  title       String
+  startDate   DateTime?
+  endDate     DateTime?
+  status      String   @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED
+  totalAmount Float?
+  payments    Payment[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  amount    Float
+  status    String   @default("PENDING") // PENDING, PAID, FAILED
+  method    String?
+  paymentDate DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ConsultantProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio             String?
+  dailyRate       Float?
+  yearsExperience Int?
+  portfolioUrl    String?
+  skills          Skill[]   @relation("ConsultantSkills")
+  updatedAt       DateTime @updatedAt
+}
+
+model ClientProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName   String?
+  companySector String?
+  companySize   String?
+  updatedAt     DateTime @updatedAt
+}
+
+model Skill {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  consultants ConsultantProfile[] @relation("ConsultantSkills")
+  needs       Need[]             @relation("NeedSkills")
+}
+
+model Need {
+  id               String   @id @default(cuid())
+  clientId         String
+  client           User     @relation("ClientNeeds", fields: [clientId], references: [id])
+  title            String
+  description      String
+  budget           Float?
+  deadline         DateTime?
+  status           String   @default("OPEN")
+
+  skills           Skill[]  @relation("NeedSkills")
+  matches          Match[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model Match {
+  id                String   @id @default(cuid())
+  needId            String
+  need              Need     @relation(fields: [needId], references: [id], onDelete: Cascade)
+  consultantId      String
+  consultant        User     @relation(fields: [consultantId], references: [id])
+  status            String   @default("PENDING") // PENDING, ADMIN_VALIDATED, ACCEPTED, REJECTED
+  compatibilityScore Float?
+  message           String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model Notification {
@@ -57,41 +181,10 @@ model Notification {
   senderId  String?
   title     String
   message   String
-  type      String   // 'ADMIN', 'EMPLOYEE', 'REFERRAL', 'SYSTEM', 'ONBOARDING'
+  type      String   // OFFER, STRATEGY_ALERT, MATCH, SYSTEM
   isRead    Boolean  @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
-
-model Lead {
-  id          String     @id @default(cuid())
-  status      String     @default("NEW")
-  client      User       @relation("ClientLeads", fields: [clientId], references: [id])
-  clientId    String
-  assignedTo  User?      @relation("EmployeeLeads", fields: [employeeId], references: [id])
-  employeeId  String?
-  notes       String?
-  operationalNotes String?  // Visible by Employee and Admin
-  strategicSynthesis String? // STRICTLY visible by Super Admin only
-  value       Float?
-  followUpLevel Int      @default(0)
-  lastContactAt DateTime?
-  referral    Referral?  @relation("LeadReferral", fields: [referralId], references: [id])
-  referralId  String?    @unique
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-}
-
-model Referral {
-  id            String   @id @default(cuid())
-  referrerId    String
-  referrer      User     @relation("UserReferrals", fields: [referrerId], references: [id])
-  referredEmail  String
-  referredName   String?
-  status        String   @default("PENDING") // PENDING, CONVERTED, EXPIRED
-  lead          Lead?    @relation("LeadReferral")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Account {
@@ -115,18 +208,16 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model VerificationOTP {
-  id          String   @id @default(cuid())
-  phoneNumber String   @unique
-  code        String
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
-model PasswordReset {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+model Settings {
+  id                String   @id @default("global")
+  adminPhoneNumber  String   @default("+237696022056")
+  updatedAt         DateTime @updatedAt
 }

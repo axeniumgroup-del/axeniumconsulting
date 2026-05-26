@@ -10,7 +10,11 @@ import {
   LogOut,
   Menu,
   X,
-  ShieldCheck
+  ShieldCheck,
+  CheckCircle,
+  Bell,
+  MessageSquare,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
@@ -18,6 +22,10 @@ import { signIn } from "next-auth/react";
 const NAV_ITEMS = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Utilisateurs", href: "/admin/users", icon: Users },
+  { name: "Validation Matchings", href: "/admin/matches", icon: CheckCircle },
+  { name: "Notifications", href: "/notifications", icon: Bell },
+  { name: "Messagerie", href: "/chat", icon: MessageSquare },
+  { name: "Événements", href: "/events", icon: Calendar },
   { name: "Paramètres", href: "/admin/settings", icon: Settings },
 ];
 

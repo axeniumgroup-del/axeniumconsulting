@@ -2,14 +2,18 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Cpu, Rss } from 'lucide-react';
+import { Building2, Cpu, Rss, Sprout, Factory, Leaf } from 'lucide-react';
 import { SERVICES } from './constants';
 import { WhatsAppButton } from './WhatsAppButton';
+import Link from 'next/link';
 
 const iconMap = {
   Building2: Building2,
   Cpu: Cpu,
   Rss: Rss,
+  Sprout: Sprout,
+  Factory: Factory,
+  Leaf: Leaf,
 };
 
 export const ExpertiseGrid = () => {
@@ -17,10 +21,10 @@ export const ExpertiseGrid = () => {
     <section id="expertises" className="py-24 px-6 bg-slate-100">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-20">
-          <h2 className="text-3xl md:text-5xl font-black text-[#231f20] tracking-tight mb-4">Nos Domaines d'Intervention</h2>
+          <h2 className="text-3xl md:text-5xl font-black text-[#231f20] tracking-tight mb-4">Nos Domaines d'Expertise</h2>
           <div className="h-1.5 w-24 bg-[#ee0c5d] mx-auto mb-6" />
           <p className="text-slate-600 max-w-2xl mx-auto text-lg">
-            L'élite du conseil multidisciplinaire pour sécuriser et optimiser vos actifs critiques.
+            Accédez aux meilleurs consultants indépendants pour sécuriser et optimiser vos actifs critiques.
           </p>
         </div>
 
@@ -51,7 +55,15 @@ export const ExpertiseGrid = () => {
                     </li>
                   ))}
                 </ul>
-                <WhatsAppButton message={service.whatsappMsg} />
+                <div className="flex flex-col gap-3">
+                  <Link
+                    href={`/services/${service.id}`}
+                    className="text-center text-sm font-bold text-slate-400 hover:text-[#ee0c5d] transition-colors mb-2"
+                  >
+                    En savoir plus →
+                  </Link>
+                  <WhatsAppButton message={service.whatsappMsg} />
+                </div>
               </motion.div>
             );
           })}

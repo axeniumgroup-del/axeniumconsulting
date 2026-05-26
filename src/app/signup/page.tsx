@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, User, Mail, Phone, Loader2, MessageCircle, Lock } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, signIn } from "next/navigation";
 import { Toast } from "@/components/ui/toast";
 
 type SignupMethod = "email" | "whatsapp";
@@ -16,7 +16,9 @@ export default function SignupPage() {
     prenom: "",
     email: "",
     phone: "",
+    role: "CLIENT",
   });
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -91,6 +93,31 @@ export default function SignupPage() {
           </Link>
           <h1 className="text-3xl font-bold text-[#231f20] tracking-tight">Rejoindre Axenium</h1>
           <p className="text-slate-500 text-sm">Choisissez votre méthode d'inscription pour accéder à nos services.</p>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3 p-1 bg-slate-100 rounded-xl">
+            <button
+              onClick={() => setFormData(prev => ({ ...prev, role: "CLIENT" }))}
+              className={`flex flex-col items-center justify-center py-3 rounded-lg transition-all ${formData.role === "CLIENT" ? "bg-white shadow-sm text-[#ee0c5d]" : "text-slate-500 hover:text-slate-700"}`}
+            >
+              <User className="w-5 h-5 mb-2" />
+              <span className="text-[10px] font-bold uppercase">Je suis Client</span>
+            </button>
+            <button
+              onClick={() => setFormData(prev => ({ ...prev, role: "CONSULTANT" }))}
+              className={`flex flex-col items-center justify-center py-3 rounded-lg transition-all ${formData.role === "CONSULTANT" ? "bg-white shadow-sm text-[#ee0c5d]" : "text-slate-500 hover:text-slate-700"}`}
+            >
+              <ShieldCheck className="w-5 h-5 mb-2" />
+              <span className="text-[10px] font-bold uppercase">Je suis Consultant</span>
+            </button>
+          </div>
+
+          <div className="relative flex items-center gap-2 py-2">
+            <div className="h-px bg-slate-200 flex-grow" />
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Méthode de contact</span>
+            <div className="h-px bg-slate-200 flex-grow" />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3 p-1 bg-slate-100 rounded-xl">

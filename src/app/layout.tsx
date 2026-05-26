@@ -1,6 +1,19 @@
+import { Metadata } from "next";
 import React from "react";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { Navbar } from "@/components/landing/Navbar";
+import { FloatingWhatsApp } from "@/components/landing/FloatingWhatsApp";
+import { FloatingLogin } from "@/components/landing/FloatingLogin";
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://axenium.group"),
+  title: {
+    template: "%s | Axenium Consulting",
+    default: "Axenium Consulting | Expertise Conseil en Afrique",
+  },
+  description: "Le réseau d'élite des consultants indépendants en BTP, IT, Télécoms, Agrobusiness, Industrialisation et Développement Durable pour sécuriser vos investissements en Afrique.",
+};
 
 export default function RootLayout({
   children,
@@ -62,7 +75,10 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <AuthProvider>
+          <Navbar />
           {children}
+          <FloatingWhatsApp />
+          <FloatingLogin />
         </AuthProvider>
       </body>
     </html>

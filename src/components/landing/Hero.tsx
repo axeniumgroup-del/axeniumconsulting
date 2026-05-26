@@ -17,13 +17,13 @@ export const Hero = () => (
         className="text-center md:text-left"
       >
         <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-[#ee0c5d]/10 text-[#ee0c5d] text-xs font-bold mb-6 border border-[#ee0c5d]/20">
-          <ShieldCheck size={14} /> Expert Conseil Afrique Francophone
+          <ShieldCheck size={14} /> Le Réseau d'Experts B2B en Afrique
         </div>
         <h1 className="text-4xl md:text-7xl font-black text-[#231f20] leading-tight tracking-tighter mb-6">
-          L'Excellence <span className="text-[#ee0c5d]">Opérationnelle</span> pour vos Infrastructures.
+          L'Accès Direct à <span className="text-[#ee0c5d]"> l'Élite du Conseil</span> Infrastructurel.
         </h1>
         <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-lg leading-relaxed mx-auto md:mx-0">
-          Axenium transforme vos défis techniques en leviers de croissance via un conseil stratégique d'élite en BTP, IT et Télécoms.
+          Axenium connecte les entreprises aux meilleurs consultants indépendants en BTP, IT, Télécoms, Agrobusiness, Industrialisation et Développement Durable pour sécuriser vos investissements et piloter votre croissance.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
           <a href="#expertises" className="px-8 py-4 bg-[#231f20] text-white font-bold rounded-lg flex items-center justify-center gap-2 hover:bg-[#3d3a39] transition-all group shadow-xl shadow-[#231f20]/30">

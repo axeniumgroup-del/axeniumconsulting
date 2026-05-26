@@ -10,8 +10,8 @@ export function middlewareLogic(req: any) {
     return NextResponse.rewrite(new URL("/unauthorized", req.url));
   }
 
-  // Protection des routes Employés
-  if (path.startsWith("/employee") && !["ADMIN", "EMPLOYEE"].includes(token?.role as string)) {
+  // Protection des routes Consultants
+  if (path.startsWith("/employee") && !["ADMIN", "CONSULTANT"].includes(token?.role as string)) {
     return NextResponse.rewrite(new URL("/unauthorized", req.url));
   }
 
@@ -33,5 +33,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/admin/:path*", "/employee/:path*", "/client/:path*"],
+  matcher: ["/admin/:path*", "/admin", "/employee/:path*", "/employee", "/client/:path*", "/client"],
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Lock, Mail, ShieldCheck, Eye, EyeOff } from "lucide-react";
@@ -33,16 +33,13 @@ export default function LoginPage() {
       const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
-        redirect: false,
+        callbackUrl: "/auth-redirect",
+        redirect: true,
       });
 
       if (result?.error) {
         throw new Error(result.error);
       }
-
-      // Successful login, redirect to client dashboard
-      router.push("/client");
-      router.refresh();
     } catch (err: any) {
       setToastMessage(err.message || "Une erreur est survenue lors de la connexion");
     } finally {
@@ -62,6 +59,21 @@ export default function LoginPage() {
             </Link>
             <h1 className="text-3xl font-bold text-[#231f20] tracking-tight">Bienvenue chez AXENIUM</h1>
             <p className="text-slate-500 text-sm">Connectez-vous pour accéder à votre espace sécurisé</p>
+          </div>
+
+          <div className="space-y-4">
+            <Button
+              onClick={() => signIn("google")}
+              className="w-full py-6 text-base font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-3"
+            >
+              <img src="https://www.svgsvg.com/svgs/google-logo.svg" className="w-5 h-5" alt="Google" />
+              Continuer avec Google
+            </Button>
+            <div className="relative flex items-center gap-2 py-2">
+              <div className="h-px bg-slate-200 flex-grow" />
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Ou</span>
+              <div className="h-px bg-slate-200 flex-grow" />
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
