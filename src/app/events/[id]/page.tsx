@@ -130,8 +130,8 @@ export default function EventDetailsPage() {
                 </>
               )}
             </button>
-          </div>
-        </div
+          )}
+        </div>
       </div>
     </div>
   );
