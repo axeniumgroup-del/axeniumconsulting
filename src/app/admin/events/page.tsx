@@ -109,11 +109,11 @@ export default function AdminEventsPage() {
                       <Ticket size={14} />
                       {event.price} F CFA
                     </div>
-                  </div}
+                  </div>
                   <div className="mt-4 flex items-center gap-2 text-xs font-bold uppercase text-slate-400">
                     <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                     {event._count.tickets} Tickets vendus
-                  </div
+                  </div>
                 </div>
               </div>
 
@@ -132,7 +132,7 @@ export default function AdminEventsPage() {
                 >
                   <Trash2 size={20} />
                 </button>
-              </div
+              </div>
             </div>
           ))
         )}
