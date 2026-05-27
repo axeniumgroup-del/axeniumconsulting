@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { getServerSession } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
@@ -37,7 +38,11 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials: any) {
-        if (!credentials?.email || !credentials?.password) return null;
+        console.log("Authorize called with:", credentials);
+        if (!credentials?.email || !credentials?.password) {
+          console.log("Missing credentials");
+          return null;
+        }
 
         const user = await prisma.user.findFirst({
           where: {
@@ -48,9 +53,15 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        if (!user || !user.password) return null;
+        console.log("User found:", user?.email, user?.phoneNumber);
+
+        if (!user || !user.password) {
+          console.log("User not found or password missing");
+          return null;
+        }
 
         const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
+        console.log("Password correct:", isPasswordCorrect);
         if (!isPasswordCorrect) return null;
 
         return {
@@ -85,3 +96,7 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
 };
+
+export async function auth() {
+  return await getServerSession(authOptions);
+}

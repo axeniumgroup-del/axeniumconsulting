@@ -24,16 +24,18 @@ export async function POST(req: Request) {
       );
     }
 
+    const whereClause: any = {
+      OR: [],
+    };
+
+    if (email) whereClause.OR.push({ email });
+    if (phone) whereClause.OR.push({ phoneNumber: phone });
+
     const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { email: email },
-          { phoneNumber: phone },
-        ],
-      },
+      where: whereClause.OR.length > 0 ? whereClause : undefined,
     });
 
-    if (existingUser) {
+    if (existingUser && whereClause.OR.length > 0) {
       return NextResponse.json(
         { message: "Cet email ou ce numéro de téléphone est déjà utilisé" },
         { status: 400 }
@@ -45,10 +47,20 @@ export async function POST(req: Request) {
     const user = await prisma.user.create({
       data: {
         name: prenom,
-        email: email,
-        phoneNumber: phone,
+        email: email || null,
+        phoneNumber: phone || null,
         password: hashedPassword,
         role: email === "batamackbatamack@gmail.com" ? "ADMIN" : role,
+      },
+    });
+
+    // Notification de rappel pour compléter le profil après l'inscription
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        title: "Complétez votre profil",
+        message: "Bienvenue sur Axenium ! Pour profiter pleinement de l'expérience, nous vous invitons à compléter les détails de votre profil.",
+        type: "SYSTEM",
       },
     });
 
